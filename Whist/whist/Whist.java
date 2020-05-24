@@ -38,6 +38,30 @@ public class Whist extends CardGame {
       int x = random.nextInt(hand.getNumberOfCards());
       return hand.get(x);
   }
+  
+  public static Card legalCard(Hand hand, Suit lead){
+      //int x = random.nextInt(hand.getNumberOfCards());
+	 ArrayList<Card> sameSuit = new ArrayList<>();
+	 
+	 for(int i = 0; i < hand.getNumberOfCards(); i++) {
+		 if(hand.get(i).getSuit() == lead) {
+			 sameSuit.add(hand.get(i));
+		 }
+		 
+	 }
+	 
+	 if(sameSuit.size() > 0) {
+		 return randomCard(sameSuit);
+	 }else {
+		 return randomCard(hand);
+	 }
+	 
+	 
+	 
+	 
+	 
+      //return hand.get(x);
+  }
  
   // return random Card from ArrayList
   public static Card randomCard(ArrayList<Card> list){
@@ -51,8 +75,8 @@ public class Whist extends CardGame {
 	 
   private final String version = "1.0";
   public final int nbPlayers = 4;
-  public final int nbStartCards = 13;
-  public final int winningScore = 11;
+  public final int nbStartCards = 6;
+  public final int winningScore = 5;
   private final int handWidth = 400;
   private final int trickWidth = 40;
   private final Deck deck = new Deck(Suit.values(), Rank.values(), "cover");
@@ -139,15 +163,24 @@ private Optional<Integer> playRound() {  // Returns winner, if any
 	for (int i = 0; i < nbStartCards; i++) {
 		trick = new Hand(deck);
     	selected = null;
-        if (0 == nextPlayer) {  // Select lead depending on player type
+        /*if (0 == nextPlayer) {  // Select lead depending on player type
     		hands[0].setTouchEnabled(true);
     		setStatus("Player 0 double-click on card to lead.");
     		while (null == selected) delay(100);
-        } else {
+        } else {*/
     		setStatusText("Player " + nextPlayer + " thinking...");
-            delay(thinkingTime);
+            delay(thinkingTime);            
+            
+            
+            
             selected = randomCard(hands[nextPlayer]);
-        }
+       
+            
+            
+            
+            
+              
+        //}
         // Lead with selected card
 	        trick.setView(this, new RowLayout(trickLocation, (trick.getNumberOfCards()+2)*trickWidth));
 			trick.draw();
@@ -157,19 +190,25 @@ private Optional<Integer> playRound() {  // Returns winner, if any
 			selected.transfer(trick, true); // transfer to trick (includes graphic effect)
 			winner = nextPlayer;
 			winningCard = selected;
+			
+			
 		// End Lead
 		for (int j = 1; j < nbPlayers; j++) {
 			if (++nextPlayer >= nbPlayers) nextPlayer = 0;  // From last back to first
 			selected = null;
-	        if (0 == nextPlayer) {
+	        /*if (0 == nextPlayer) {
 	    		hands[0].setTouchEnabled(true);
 	    		setStatus("Player 0 double-click on card to follow.");
 	    		while (null == selected) delay(100);
-	        } else {
+	        } else {*/
 		        setStatusText("Player " + nextPlayer + " thinking...");
 		        delay(thinkingTime);
-		        selected = randomCard(hands[nextPlayer]);
-	        }
+		        
+		        
+		        
+		        
+		        selected = legalCard(hands[nextPlayer], lead);
+	        //}
 	        // Follow with selected card
 		        trick.setView(this, new RowLayout(trickLocation, (trick.getNumberOfCards()+2)*trickWidth));
 				trick.draw();
@@ -202,6 +241,9 @@ private Optional<Integer> playRound() {  // Returns winner, if any
 				 }
 			// End Follow
 		}
+		
+		
+		
 		delay(600);
 		trick.setView(this, new RowLayout(hideLocation, 0));
 		trick.draw();		
