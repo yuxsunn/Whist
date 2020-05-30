@@ -1,5 +1,15 @@
 /BrokeRuleException.class
+/ICardStrategy.class
 /Whist$1.class
 /Whist$Rank.class
 /Whist$Suit.class
 /Whist.class
+/sprites/
+/RandomAdapter.class
+/ICardAdapter.class
+/RandomCard.class
+/Adapter.class
+/LegalAdapter.class
+/LegalCard.class
+/SmartAdapter.class
+/SmartCard.class

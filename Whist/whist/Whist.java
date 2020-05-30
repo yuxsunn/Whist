@@ -5,6 +5,8 @@ import ch.aplu.jgamegrid.*;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -33,250 +35,6 @@ public class Whist extends CardGame {
       return clazz.getEnumConstants()[x];
   }
   
-  // return random Card from Hand
-  public static Card randomCard(Hand hand){
-	  System.out.println(hand);
-      int x = random.nextInt(hand.getNumberOfCards());
-      return hand.get(x);
-  }
-  
-  public static Card legalCard(Hand hand, Suit lead){
-      //int x = random.nextInt(hand.getNumberOfCards());
-	 ArrayList<Card> sameSuit = new ArrayList<>();
-	 
-	 for(int i = 0; i < hand.getNumberOfCards(); i++) {
-		 if(hand.get(i).getSuit() == lead) {
-			 sameSuit.add(hand.get(i));
-		 }
-		 
-	 }
-	 
-	 if(sameSuit.size() > 0) {
-		 return randomCard(sameSuit);
-	 }else {
-		 return randomCard(hand);
-	 }
-	 
-	 
-	 
-	 
-	 
-      //return hand.get(x);
-  }
-  
-  public Card smartCard(Hand hand, ArrayList<Card> cardList, Suit trumps){
-	  System.out.println("sdsdfdadsds"+cardList.size());
-	  Card selected = hand.get(0);
-	  int rank;
-	  if (cardList.size() == 0) { // be the first player
-		  rank = 4;
-		  // this for loop only operate when has trump > 10 
-		  for(int i = 0; i < hand.getNumberOfCards(); i++) {
-			  //has trump > 10
-			  if(hand.get(i).getSuit() == trumps && hand.get(i).getRankId() < rank) {
-				  rank = hand.get(i).getRankId();
-				  selected = hand.get(i);
-			  }
-		  }
-		  // if don't has trump > 10, find the largest normal card
-		  if (rank > 3) {
-			  rank = 13;
-			  for(int i = 0; i < hand.getNumberOfCards(); i++) {
-				  if(hand.get(i).getSuit() != trumps && hand.get(i).getRankId() < rank) {
-					  selected = hand.get(i);
-					  rank = hand.get(i).getRankId();
-				  }
-			  }
-		  }
-	  } else{ // be the second or third or forth player
-		  Card winningCard = cardList.get(0);
-		  Suit lead;
-		  lead = (Suit) winningCard.getSuit();
-		  // find the winning card on the desk
-		  for (int i = 1; i < cardList.size(); i++) {
-			  selected = cardList.get(i);
-		      if ( // beat current winner with higher card
-					 (selected.getSuit() == winningCard.getSuit() && rankGreater(selected, winningCard)) ||
-					  // trumped when non-trump was winning
-					 (selected.getSuit() == trumps && winningCard.getSuit() != trumps)) {
-					 winningCard = selected;
-		      }
-		  }
-		  
-		  ArrayList<Card> sameSuit = new ArrayList<>();
-		  ArrayList<Card> trumpList = new ArrayList<>();
-			
-		  for(int i = 0; i < hand.getNumberOfCards(); i++) {
-			  if(hand.get(i).getSuit() == lead) {
-				  sameSuit.add(hand.get(i));
-			  }
-			  if(hand.get(i).getSuit() == trumps) {
-				  trumpList.add(hand.get(i));
-			  }
-		  }
-	      
-		  // be the second or third player
-		  if (cardList.size() == 1 || cardList.size() == 2) {
-			  selected = null;
-			  if (!lead.equals(trumps)) { // lead is not same as trump
-				  if (winningCard.getSuit() == lead && sameSuit.size() > 0) { // you has lead and no one used trump
-					  if (sameSuit.get(0).getRankId() < winningCard.getRankId()) { 
-						  // if you can win, select the largest leading
-						  selected = sameSuit.get(0);
-					  } else {
-						  // if cannot win, select the smallest leading
-						  selected = sameSuit.get(sameSuit.size()-1);
-					  }
-				  } else if (sameSuit.size() > 0 && winningCard.getSuit() == trumps) { 
-					  // you has lead and someone used trump, so you cannot win
-					  // select the smallest lead
-					  selected = sameSuit.get(sameSuit.size()-1);
-				  } else if (sameSuit.size() == 0 && trumpList.size() > 0 && winningCard.getSuit() == lead) {
-					  // you don't have lead but have trump, no one used trump before
-					  // select the largest trump
-					  selected = trumpList.get(0);
-				  } else if (sameSuit.size() == 0 && trumpList.size() > 0 && winningCard.getSuit() == trumps) {
-					  // you don't have lead but have trump, someone used trump before
-					  
-					  // if have trump greater than wining trump
-					  if (trumpList.get(0).getRankId() < winningCard.getRankId()) {
-						  // select the largest trump
-						  selected = trumpList.get(0);
-					  }
-				  }
-			  } else { // lead is the same as trump
-				  if (sameSuit.size() > 0) {
-					  // select the largest trump if can win the winning card
-					  if (sameSuit.get(0).getRankId() < winningCard.getRankId()) {
-						  selected = sameSuit.get(0);
-					  } else { // select the smallest trump if cannot win
-						  selected = sameSuit.get(sameSuit.size()-1);
-					  }
-				  }
-			  }
-			  
-			  // if don't have lead or trump, have no way to win, select the smallest card
-			  if (selected == null) {
-				  rank = -1;
-				  for (int i = 0; i < hand.getNumberOfCards(); i++) {
-					  if (hand.get(i).getRankId() > rank) {
-						  selected = hand.get(i);
-						  rank = hand.get(i).getRankId();
-					  }
-				  }
-			  }
-		  }else if(cardList.size() == 3){ // if you are the forth player
-			  System.out.println("yeah last player!!!!!!!11"); //GET
-			  System.out.println("lead:"+lead+"winning card"+winningCard.getSuit()+"trump"+trumps);
-			  selected = null;
-			  if (!lead.equals(trumps)) { // if lead is not same as trump
-				  System.out.println("lead != trump!!!!!!"); //GET
-				  
-				  //1.have lead and win is lead
-				  if (winningCard.getSuit() == lead && sameSuit.size() > 0) {
-					  System.out.println("enter if!!!!!!!!"); //GET
-					  // have card greater than wining card
-					  if (sameSuit.get(0).getRankId() < winningCard.getRankId()) {
-						  // select the smallest card but greater than winning
-						  rank = winningCard.getRankId();
-						  for(int i = sameSuit.size()-1; i >= 0; i--) {
-							  if(sameSuit.get(i).getRankId() < rank) {
-								  selected = sameSuit.get(i);
-								  break;
-							  }
-						  }
-						  System.out.println("have card greater than wining card select the smallest card but greater than winning\n"); //GET
-					  } else { // don't have card greater than wining card
-						   // select the smallest lead 
-						  
-						   selected = sameSuit.get(sameSuit.size()-1);
-						  
-					  }
-					  
-					  
-				//2.have lead, wining is trump, already lose, select the smallest lead
-				  } else if (sameSuit.size() > 0 && winningCard.getSuit() == trumps) {
-					  selected = sameSuit.get(sameSuit.size()-1);
-				  }
-				  //3. no lead, have trump, win = lead
-				  else if (sameSuit.size() == 0 && trumpList.size() > 0 && winningCard.getSuit() == lead) {
-					  /*
-					   * selected = trumpList.get(0);
-					   */
-					  // select the smallest trump
-					  /*for(int i = trumpList.size()-1; i >= 0; i--) {
-						  rank = 14;
-						  if(trumpList.get(i).getRankId() < rank) {
-							  selected = trumpList.get(i);
-							  break;
-						  }
-					  }*/
-					  selected = trumpList.get(trumpList.size()-1);
-					  System.out.println("no lead have trump win = lead\n");
-				  }
-				  //4. win = trump, no lead, have trump
-				  else if (sameSuit.size() == 0 && trumpList.size() > 0 && winningCard.getSuit() == trumps) {
-					  /*
-					  if (trumpList.get(0).getRankId() < winningCard.getRankId()) {
-						  selected = trumpList.get(0);
-					  } else {
-						  selected = trumpList.get(trumpList.size());
-					  }
-					  */
-					  // choose the smallest trump which greater than the winning
-					  rank = winningCard.getRankId();
-					  for(int i = trumpList.size()-1; i >= 0; i--) {
-						  
-						  if(trumpList.get(i).getRankId() < rank) {
-							  selected = trumpList.get(i);
-							  break;
-						  }
-					  }
-					  System.out.println("choose the smallest trump which greater than the winning; win = trump, no lead, have trump\n");
-				  }
-			  }else { // lead = trump
-				  System.out.println("lead = trump!!!!!!!11");
-				  //6.have trump 
-				  if (sameSuit.size() > 0) {
-					  // have cards greater than winning, then select the smallest of them
-					  if (sameSuit.get(0).getRankId() < winningCard.getRankId()) {
-						  
-						  rank = winningCard.getRankId();
-						  
-						  for(int i = trumpList.size()-1; i >= 0; i--) {
-					
-							  if(sameSuit.get(i).getRankId() < rank) {
-								  selected = sameSuit.get(i);
-								  break;
-							  }
-						  }
-					  } else { // don't have trump greater than winning, select the smallest trump
-						  selected = sameSuit.get(sameSuit.size()-1);
-					  }
-					 
-				  }
-			  }
-			  
-			  // have no way to win, select the smallest card
-			  if (selected == null) {
-				  rank = -1;
-				  for (int i = 0; i < hand.getNumberOfCards(); i++) {
-					  if (hand.get(i).getRankId() > rank) {
-						  selected = hand.get(i);
-						  rank = hand.get(i).getRankId();
-					  }
-				  }
-			  }
-			  
-			  
-		  }
-		  
-	  }
-	  
-	  return selected;
-	  
-  }
- 
   // return random Card from ArrayList
   public static Card randomCard(ArrayList<Card> list){
       int x = random.nextInt(list.size());
@@ -289,8 +47,6 @@ public class Whist extends CardGame {
 	 
   private final String version = "1.0";
   public final int nbPlayers = 4;
-  public final int nbStartCards = 13;
-  public final int winningScore = 11;
   private final int handWidth = 400;
   private final int trickWidth = 40;
   private final Deck deck = new Deck(Suit.values(), Rank.values(), "cover");
@@ -337,7 +93,8 @@ private void updateScore(int player) {
 
 private Card selected;
 
-private void initRound() {
+private void initRound(Properties gameProperties) {
+	     int nbStartCards = Integer.parseInt(gameProperties.getProperty("nbStartCards"));
 		 hands = deck.dealingOut(nbPlayers, nbStartCards); // Last element of hands is leftover cards; these are ignored
 		 for (int i = 0; i < nbPlayers; i++) {
 			   hands[i].sort(Hand.SortType.SUITPRIORITY, true);
@@ -363,7 +120,7 @@ private void initRound() {
 	    // End graphics
  }
 
-private Optional<Integer> playRound() {  // Returns winner, if any
+private Optional<Integer> playRound(Properties gameProperties) {  // Returns winner, if any
 	// Select and display trump suit
 		final Suit trumps = randomEnum(Suit.class);
 		final Actor trumpsActor = new Actor("sprites/"+trumpImage[trumps.ordinal()]);
@@ -374,11 +131,12 @@ private Optional<Integer> playRound() {  // Returns winner, if any
 	Card winningCard;
 	Suit lead;
 	int nextPlayer = random.nextInt(nbPlayers); // randomly select player to lead for this round
+	int nbStartCards = Integer.parseInt(gameProperties.getProperty("nbStartCards"));
 	for (int i = 0; i < nbStartCards; i++) {
 		ArrayList<Card> cardlist = new ArrayList<>();
 		trick = new Hand(deck);
     	selected = null;
-        if (0 == nextPlayer) {  // Select lead depending on player type
+        if (!gameProperties.getProperty("Legal").equals("4") && 0 == nextPlayer) {  // Select lead depending on player type
     		hands[0].setTouchEnabled(true);
     		setStatus("Player 0 double-click on card to lead.");
     		while (null == selected) delay(100);
@@ -386,9 +144,8 @@ private Optional<Integer> playRound() {  // Returns winner, if any
     		setStatusText("Player " + nextPlayer + " thinking...");
             delay(thinkingTime);            
             
-            
-            
-            selected = smartCard(hands[nextPlayer], cardlist, trumps);
+            Adapter adapter = new Adapter(gameProperties, nextPlayer);
+            selected = adapter.selectCard(hands[nextPlayer], cardlist, trumps, random);
        
             
             
@@ -416,7 +173,7 @@ private Optional<Integer> playRound() {  // Returns winner, if any
 		for (int j = 1; j < nbPlayers; j++) {
 			if (++nextPlayer >= nbPlayers) nextPlayer = 0;  // From last back to first
 			selected = null;
-	        if (0 == nextPlayer) {
+	        if (!gameProperties.getProperty("Legal").equals("4") && 0 == nextPlayer) {
 	    		hands[0].setTouchEnabled(true);
 	    		setStatus("Player 0 double-click on card to follow.");
 	    		while (null == selected) delay(100);
@@ -426,8 +183,8 @@ private Optional<Integer> playRound() {  // Returns winner, if any
 		        
 		        
 		        
-		        
-		        selected = smartCard(hands[nextPlayer], cardlist, trumps);
+		        Adapter adapter = new Adapter(gameProperties, nextPlayer);
+	            selected = adapter.selectCard(hands[nextPlayer], cardlist, trumps, random);
 		        //cardlist.add(selected);
 		        //System.out.println("second!!!!" + cardlist);
 		        
@@ -475,29 +232,53 @@ private Optional<Integer> playRound() {  // Returns winner, if any
 		setStatusText("Player " + nextPlayer + " wins trick.");
 		scores[nextPlayer]++;
 		updateScore(nextPlayer);
+		int winningScore = Integer.parseInt(gameProperties.getProperty("winningScore"));
 		if (winningScore == scores[nextPlayer]) return Optional.of(nextPlayer);
 	}
 	removeActor(trumpsActor);
 	return Optional.empty();
 }
 
-  public Whist()
+  public Whist() throws IOException
   {
     super(700, 700, 30);
     setTitle("Whist (V" + version + ") Constructed for UofM SWEN30006 with JGameGrid (www.aplu.ch)");
     setStatusText("Initializing...");
+    
+    Properties gameProperties = new Properties();
+    
+    // Default properties
+	gameProperties.setProperty("Interactive", "0");
+	gameProperties.setProperty("Random", "3");
+	gameProperties.setProperty("Legal", "0");
+	gameProperties.setProperty("Smart", "0");
+	gameProperties.setProperty("nbStartCards", "13");
+	gameProperties.setProperty("winningScore", "20");
+    
+	// Read properties
+	FileReader inStream = null;
+	try {
+		inStream = new FileReader("smart.properties");
+		gameProperties.load(inStream);
+	} finally {
+		if (inStream != null) {
+		    inStream.close();
+		}
+	}
+	// End properties
+	
     initScore();
     Optional<Integer> winner;
     do { 
-      initRound();
-      winner = playRound();
+      initRound(gameProperties);
+      winner = playRound(gameProperties);
     } while (!winner.isPresent());
     addActor(new Actor("sprites/gameover.gif"), textLocation);
     setStatusText("Game over. Winner is player: " + winner.get());
     refresh();
   }
 
-  public static void main(String[] args)
+  public static void main(String[] args) throws IOException
   {
 	// System.out.println("Working Directory = " + System.getProperty("user.dir"));
     new Whist();
