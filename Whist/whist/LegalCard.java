@@ -6,6 +6,10 @@ import ch.aplu.jcardgame.Hand;
 
 public class LegalCard {    
 	public Card legalCard(Hand hand, ArrayList<Card> cardList, Whist.Suit trumps, Random random){
+		if (cardList.size() == 0) {
+			return hand.get(random.nextInt(hand.getNumberOfCards()));
+		}
+		
 		 ArrayList<Card> sameSuit = new ArrayList<>();
 		 
 		 for(int i = 0; i < hand.getNumberOfCards(); i++) {
@@ -16,7 +20,7 @@ public class LegalCard {
 		 }
 		 
 		 if(sameSuit.size() > 0) {
-			 return hand.get(random.nextInt(hand.getNumberOfCards()));
+			 return sameSuit.get(random.nextInt(sameSuit.size()));
 		 }else {
 			 return hand.get(random.nextInt(hand.getNumberOfCards()));
 		 }
