@@ -23,6 +23,7 @@ public class RandomCard {
     public Card randomCard(){
   	    //System.out.println(hand);
         int x = random.nextInt(hand.getNumberOfCards());
+        //System.out.println(x);
         return hand.get(x);
     }
 }

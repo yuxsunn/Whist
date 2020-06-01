@@ -27,7 +27,7 @@ public class Whist extends CardGame {
   
   final String trumpImage[] = {"bigspade.gif","bigheart.gif","bigdiamond.gif","bigclub.gif"};
 
-  static final Random random = ThreadLocalRandom.current();
+  static Random random = ThreadLocalRandom.current();
   
   // return random Enum value
   public static <T extends Enum<?>> T randomEnum(Class<T> clazz){
@@ -250,23 +250,28 @@ private Optional<Integer> playRound(Properties gameProperties) {  // Returns win
     Properties gameProperties = new Properties();
     
     // Default properties
-	gameProperties.setProperty("Interactive", "0");
-	gameProperties.setProperty("Random", "3");
-	gameProperties.setProperty("Legal", "0");
-	gameProperties.setProperty("Smart", "0");
-	gameProperties.setProperty("nbStartCards", "13");
-	gameProperties.setProperty("winningScore", "20");
+    gameProperties.setProperty("0", "Interactive");
+    gameProperties.setProperty("1", "Random");
+    gameProperties.setProperty("2", "Random");
+    gameProperties.setProperty("3", "Random");
+    gameProperties.setProperty("nbStartCards", "13");
+    gameProperties.setProperty("winningScore", "20");
+    gameProperties.setProperty("Seed", "30006");
     
 	// Read properties
 	FileReader inStream = null;
 	try {
-		inStream = new FileReader("smart.properties");
+		inStream = new FileReader("original.properties");
 		gameProperties.load(inStream);
 	} finally {
 		if (inStream != null) {
 		    inStream.close();
 		}
 	}
+	Whist.random = new Random(Integer.parseInt(gameProperties.getProperty("Seed")));
+	/*for (int i = 0; i < 10; i++) {
+		System.out.println(random.nextInt());
+	}*/
 	// End properties
 	
     initScore();
