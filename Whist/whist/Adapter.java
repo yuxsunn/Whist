@@ -38,17 +38,18 @@ public class Adapter {
 	
 	
 
-	private ICardAdapter chooseStrategy(Properties gameProperties, int nextPlayer) {
-		// choose an appropriate loading strategy for this item
-		// client can create more strategy classes and add to here
-		if (gameProperties.getProperty("Legal").equals("4")) {
-			return new LegalAdapter(hand,  cardList,  trumps, random);
-		} else if (gameProperties.getProperty("Smart").equals("1") && nextPlayer == 1) {
-			return new SmartAdapter(hand,  cardList,  trumps, random);
-		} else {
-			return new RandomAdapter(hand,  cardList,  trumps, random);
-		}
-		
-	}
+	 private ICardAdapter chooseStrategy(Properties gameProperties, int nextPlayer) {
+		  // choose an appropriate loading strategy for this item
+		  // client can create more strategy classes and add to here
+		  String playerNo = Integer.toString(nextPlayer);
+		  if (gameProperties.getProperty(playerNo).equals("Legal")) {
+		   return new LegalAdapter(hand,  cardList,  trumps, random);
+		  } else if (gameProperties.getProperty(playerNo).equals("Smart")) {
+		   return new SmartAdapter(hand,  cardList,  trumps, random);
+		  } else {
+		   return new RandomAdapter(hand,  cardList,  trumps, random);
+		  }
+		  
+		 }
 	
 }

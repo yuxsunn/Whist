@@ -136,7 +136,8 @@ private Optional<Integer> playRound(Properties gameProperties) {  // Returns win
 		ArrayList<Card> cardlist = new ArrayList<>();
 		trick = new Hand(deck);
     	selected = null;
-        if (!gameProperties.getProperty("Legal").equals("4") && 0 == nextPlayer) {  // Select lead depending on player type
+    	String playerNo = Integer.toString(nextPlayer);
+    	if (gameProperties.getProperty(playerNo).equals("Interactive")) {   // Select lead depending on player type
     		hands[0].setTouchEnabled(true);
     		setStatus("Player 0 double-click on card to lead.");
     		while (null == selected) delay(100);
@@ -173,7 +174,8 @@ private Optional<Integer> playRound(Properties gameProperties) {  // Returns win
 		for (int j = 1; j < nbPlayers; j++) {
 			if (++nextPlayer >= nbPlayers) nextPlayer = 0;  // From last back to first
 			selected = null;
-	        if (!gameProperties.getProperty("Legal").equals("4") && 0 == nextPlayer) {
+			playerNo = Integer.toString(nextPlayer);
+			if (gameProperties.getProperty(playerNo).equals("Interactive")) { 
 	    		hands[0].setTouchEnabled(true);
 	    		setStatus("Player 0 double-click on card to follow.");
 	    		while (null == selected) delay(100);
