@@ -5,7 +5,21 @@ import ch.aplu.jcardgame.Card;
 import ch.aplu.jcardgame.Hand;
 
 public class SmartCard {    
-	public Card smartCard(Hand hand, ArrayList<Card> cardList, Whist.Suit trumps, Random random){
+	
+	private Hand hand;
+	private ArrayList<Card> cardList;
+	private Whist.Suit trumps;
+	private Random random;
+	
+	public SmartCard(Hand hand, ArrayList<Card> cardList, Whist.Suit trumps, Random random) {
+		this.hand = hand;
+		this.cardList = cardList;
+		this.trumps = trumps;
+		this.random = random;
+		
+	}
+	
+	public Card smartCard(){
 		  Card selected = hand.get(0);
 		  int rank;
 		  if (cardList.size() == 0) { // be the first player

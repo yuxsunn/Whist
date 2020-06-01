@@ -144,7 +144,7 @@ private Optional<Integer> playRound(Properties gameProperties) {  // Returns win
     		setStatusText("Player " + nextPlayer + " thinking...");
             delay(thinkingTime);            
             
-            Adapter adapter = new Adapter(gameProperties, nextPlayer);
+            Adapter adapter = new Adapter(gameProperties, nextPlayer, hands[nextPlayer], cardlist, trumps, random);
             selected = adapter.selectCard(hands[nextPlayer], cardlist, trumps, random);
        
             
@@ -183,7 +183,7 @@ private Optional<Integer> playRound(Properties gameProperties) {  // Returns win
 		        
 		        
 		        
-		        Adapter adapter = new Adapter(gameProperties, nextPlayer);
+		        Adapter adapter = new Adapter(gameProperties, nextPlayer, hands[nextPlayer], cardlist, trumps, random);
 	            selected = adapter.selectCard(hands[nextPlayer], cardlist, trumps, random);
 		        //cardlist.add(selected);
 		        //System.out.println("second!!!!" + cardlist);

@@ -4,8 +4,21 @@ import java.util.Random;
 import ch.aplu.jcardgame.Card;
 import ch.aplu.jcardgame.Hand;
 
-public class LegalCard {    
-	public Card legalCard(Hand hand, ArrayList<Card> cardList, Whist.Suit trumps, Random random){
+public class LegalCard {   
+	private Hand hand;
+	private ArrayList<Card> cardList;
+	private Whist.Suit trumps;
+	private Random random;
+	
+	public LegalCard(Hand hand, ArrayList<Card> cardList, Whist.Suit trumps, Random random) {
+		this.hand = hand;
+		this.cardList = cardList;
+		this.trumps = trumps;
+		this.random = random;
+		
+	}
+	
+	public Card legalCard(){
 		if (cardList.size() == 0) {
 			return hand.get(random.nextInt(hand.getNumberOfCards()));
 		}
