@@ -27,7 +27,7 @@ public class Whist extends CardGame {
   
   final String trumpImage[] = {"bigspade.gif","bigheart.gif","bigdiamond.gif","bigclub.gif"};
 
-  static Random random = ThreadLocalRandom.current();
+  static Random random;
   
   // return random Enum value
   public static <T extends Enum<?>> T randomEnum(Class<T> clazz){
